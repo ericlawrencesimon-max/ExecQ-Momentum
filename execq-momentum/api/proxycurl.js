@@ -30,20 +30,20 @@ export default async function handler(req, res) {
       }
     );
 
+    const rawText = await response.text();
+    let data = {};
+    try { data = JSON.parse(rawText); } catch(e) {}
+
     if (response.status === 429) {
-      return res.status(200).json({ error: 'Rate limit reached', code: 429 });
+      return res.status(200).json({ error: 'Rate limit reached', code: 429, _raw_status: 429 });
     }
     if (response.status === 404) {
-      return res.status(200).json({ error: 'Profile not found', code: 404 });
+      return res.status(200).json({ error: 'Profile not found', code: 404, _raw_status: 404 });
     }
     if (!response.ok) {
-      return res.status(200).json({ error: `Proxycurl error: ${response.status}`, code: response.status });
+      return res.status(200).json({ error: `Proxycurl error: ${response.status}`, code: response.status, _raw_status: response.status, _raw_body: rawText.slice(0, 300) });
     }
 
-    const data = await response.json();
-
-    // follower_count may be null even for public profiles - use 0 as fallback
-    // connections may come back as null - LinkedIn hides exact counts
     const result = {
       full_name: [data.first_name, data.last_name].filter(Boolean).join(' ') || null,
       headline: data.headline || null,
@@ -53,9 +53,14 @@ export default async function handler(req, res) {
         num_likes: a.num_likes || 0,
         num_comments: a.num_comments || 0,
       })),
-      // Pass through raw fields for debugging
+      // Debug: raw fields from Proxycurl
+      _raw_first_name: data.first_name,
+      _raw_last_name: data.last_name,
       _raw_follower_count: data.follower_count,
       _raw_connections: data.connections,
+      _raw_headline: data.headline,
+      _raw_status: response.status,
+      _raw_keys: Object.keys(data).slice(0, 20),
     };
 
     return res.status(200).json(result);
