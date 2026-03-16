@@ -89,7 +89,7 @@ const DEMO_SIGS=genEst('SVP of Marketing','Technology');
 const DEMO_IR=calcIndex(DEMO_SIGS);
 let AM='signup';
 const BETA_CODE='EXECQ2026';
-let S={screen:'loading',activeTab:'Home',user:null,ud:{name:'',title:'',company:'',industry:'',expertise:'',goals:[],shareEcosystem:true,partnerActivations:true,searchAlerts:false},indexResult:null,signals:JSON.parse(JSON.stringify(DEF)),notifs:JSON.parse(JSON.stringify(NOTIFS)),showCoach:false,coachData:null,coachLoading:false,coachError:null,showLI:false,liStep:1,liUrl:'',liUrlStatus:null,liDraft:null,liEdited:{},liOpen:{linkedin:true,press:false,speaking:false,podcast:false,blog:false,board:false},sigTab:'linkedin',sigDraft:JSON.parse(JSON.stringify(DEF)),sigEdited:{},sigSaved:false,profSec:'history',notifOpen:false,calcStep:0,calcDone:false,calcResult:null,skelDone:false,briefArticles:[],briefLoading:false,briefError:null,briefExpanded:{},briefCopied:{},briefSources:['Harvard Business Review','Forbes','Fast Company','MIT Sloan','LinkedIn News'],briefSetup:false,opps:[],oppsLoading:false,oppsError:null,oppsSetup:false,oppsFilter:'all',oppsExpanded:{},oppsManualOpen:false,oppsManual:{type:'',title:'',org:'',why:'',action:'',goal:''},scoreHistory:[],betaVerified:false,benchmarkOpen:false,oppStatus:{},oppView:'now'};
+let S={screen:'loading',activeTab:'Home',user:null,ud:{name:'',title:'',company:'',industry:'',expertise:'',goals:[],shareEcosystem:true,partnerActivations:true,searchAlerts:false},indexResult:null,signals:JSON.parse(JSON.stringify(DEF)),notifs:JSON.parse(JSON.stringify(NOTIFS)),showCoach:false,coachData:null,coachLoading:false,coachError:null,showLI:false,liStep:1,liUrl:'',liUrlStatus:null,liDraft:null,liEdited:{},liOpen:{linkedin:true,press:false,speaking:false,podcast:false,blog:false,board:false},sigTab:'linkedin',sigDraft:JSON.parse(JSON.stringify(DEF)),sigEdited:{},sigSaved:false,profSec:'history',notifOpen:false,calcStep:0,calcDone:false,calcResult:null,skelDone:false,briefArticles:[],briefLoading:false,briefError:null,briefExpanded:{},briefCopied:{},briefSources:['Harvard Business Review','Forbes','Fast Company','MIT Sloan','LinkedIn News'],briefSetup:false,opps:[],oppsLoading:false,oppsError:null,oppsSetup:false,oppsFilter:'all',oppsExpanded:{},oppsManualOpen:false,oppsManual:{type:'',title:'',org:'',why:'',action:'',goal:''},scoreHistory:[],betaVerified:false,benchmarkOpen:false,oppStatus:{},oppView:'now',simDraft:null,simTarget:null};
 function ss(u){Object.assign(S,u);render();setTimeout(animateBars,50);}
 function saveUserData(){if(S.user&&S.user.uid!=='demo'){SDB.set(S.user.uid,{...S.ud,signals:S.signals,indexResult:S.indexResult,scoreHistory:S.scoreHistory||[]});}}
 function enterDemo(){S.ud=JSON.parse(JSON.stringify(DEMO_UD));S.signals=JSON.parse(JSON.stringify(DEMO_SIGS));S.sigDraft=JSON.parse(JSON.stringify(DEMO_SIGS));S.indexResult=DEMO_IR;S.user={uid:'demo',email:'demo@execq.app'};ss({screen:'app',skelDone:false});}
@@ -164,11 +164,113 @@ ${sec==='history'?`<div><div style="display:flex;background:#1a2640;border-radiu
 ${sec==='profile'?`<div><p class="stitle" style="margin-top:0">PERSONAL INFO</p>${[{l:'First Name',k:'name',p:'e.g. Alex'},{l:'Job Title',k:'title',p:'e.g. SVP of Marketing'},{l:'Company',k:'company',p:'e.g. TechVanguard'},{l:'Expertise',k:'expertise',p:'e.g. AI in Marketing'}].map(f=>`<div class="ig"><label class="lbl">${f.l}</label><input type="text" id="edit-${f.k}" value="${ud[f.k]||''}" placeholder="${f.p}"></div>`).join('')}<button class="btn btn-gold" style="margin-top:12px" onclick="const d={...S.ud};['name','title','company','expertise'].forEach(k=>{const el=document.getElementById('edit-'+k);if(el)d[k]=el.value});ss({ud:d})">Save Changes</button></div>`:''}
 ${sec==='settings'?`<div><div style="background:#1a2640;border-radius:14px;border:1px solid rgba(255,255,255,0.07);overflow:hidden;margin-bottom:12px"><div style="padding:14px"><p style="font-size:13px;font-weight:700;color:#eef0f7;margin-bottom:2px">Email</p><p style="font-size:11px;color:#6e7a96">${S.user?.email||'demo@execq.app'}</p></div><div style="padding:10px 14px;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between"><p style="font-size:13px;font-weight:700;color:#eef0f7">Access</p><div style="display:inline-flex;align-items:center;gap:5px;background:rgba(236,191,90,0.08);border:1px solid rgba(236,191,90,0.25);border-radius:20px;padding:4px 10px"><span style="font-size:10px;font-weight:800;color:#ecbf5a;letter-spacing:0.5px">⚡ BETA TESTER</span></div></div></div><div onclick="SA.signOut().then(()=>ss({screen:'splash',user:null,indexResult:null,signals:JSON.parse(JSON.stringify(DEF)),ud:{name:'',title:'',company:'',industry:'',expertise:'',goals:[],shareEcosystem:true,partnerActivations:true,searchAlerts:false}}))" class="click" style="background:#1a2640;border-radius:14px;border:1px solid rgba(255,255,255,0.07);padding:14px"><p style="font-size:14px;font-weight:600;color:#6e7a96">Sign Out</p></div></div>`:''}
 </div>`;}
-const TABS=[{id:'Home',icon:'⚡',lbl:'Home'},{id:'Briefing',icon:'☀️',lbl:'Briefing'},{id:'Signals',icon:'📡',lbl:'Signals'},{id:'Roadmap',icon:'🗺',lbl:'Roadmap'},{id:'Opps',icon:'🚀',lbl:'Momentum'},{id:'Profile',icon:'👤',lbl:'Profile'}];
+function renderSim(){
+  if(!S.simDraft){const d=JSON.parse(JSON.stringify(S.signals));ss({simDraft:d});return renderSim();}
+  const base=S.indexResult?.total??0;
+  const baseLv=getLevel(base);
+  const sim=calcIndex(S.simDraft);
+  const simLv=getLevel(sim.total);
+  const delta=sim.total-base;
+  const baseScores=S.indexResult?.scores??{linkedin:0,press:0,speaking:0,podcast:0,blog:0,board:0};
+  const MAXES={linkedin:{followers:50000,connections:5000,engagementRate:10},press:{mentionCount:50,avgOutletAuthority:100},speaking:{eventCount:20,avgEventTier:100},podcast:{appearanceCount:30,avgAudienceSize:100000},blog:{articleCount:40,avgPlatformAuthority:100},board:{roleCount:5}};
+  const FIELD_LABELS={followers:'Followers',connections:'Connections',engagementRate:'Engagement %',mentionCount:'Press mentions',avgOutletAuthority:'Outlet prestige',eventCount:'Speaking events',avgEventTier:'Event prestige',appearanceCount:'Podcast appearances',avgAudienceSize:'Avg listeners',articleCount:'Articles published',avgPlatformAuthority:'Platform reach',roleCount:'Board roles'};
+  const STEPS={followers:500,connections:100,engagementRate:0.1,mentionCount:1,avgOutletAuthority:1,eventCount:1,avgEventTier:1,appearanceCount:1,avgAudienceSize:1000,articleCount:1,avgPlatformAuthority:1,roleCount:1};
+  function fmtVal(key,val){
+    if(key==='followers'||key==='avgAudienceSize')return val>=1000?(val/1000).toFixed(val>=10000?0:1)+'k':String(val);
+    if(key==='engagementRate')return val.toFixed(1)+'%';
+    return String(val);
+  }
+  const deltaColor=delta>0?'#34d470':delta<0?'#e05a7a':'#6e7a96';
+  const deltaLabel=delta>0?'+'+delta:delta===0?'No change':String(delta);
+  function sliderSection(src){
+    const fields=SF[src.key];
+    const simVals=S.simDraft[src.key];
+    const baseVals=S.signals[src.key];
+    const baseScore=baseScores[src.key]||0;
+    const simScore=sim.scores[src.key]||0;
+    const sDelta=simScore-baseScore;
+    const sDeltaColor=sDelta>0?'#34d470':sDelta<0?'#e05a7a':'#6e7a96';
+    return `<div style="background:#1a2640;border-radius:14px;padding:16px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.08)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:34px;height:34px;border-radius:9px;background:${src.iconBg};display:flex;align-items:center;justify-content:center;font-size:${src.key==='linkedin'?13:17}px;font-weight:900;color:${src.color};flex-shrink:0">${src.icon}</div>
+        <div style="flex:1">
+          <p style="font-size:13px;font-weight:700;color:#eef0f7">${src.label}</p>
+          <p style="font-size:10px;color:#6e7a96">Weight: ${Math.round(W[src.key]*100)}% of index</p>
+        </div>
+        <div style="text-align:right">
+          <p style="font-size:20px;font-weight:800;color:${src.color};line-height:1">${simScore}</p>
+          <p style="font-size:10px;font-weight:700;color:${sDeltaColor}">${sDelta===0?'—':sDelta>0?'+'+sDelta:sDelta}</p>
+        </div>
+      </div>
+      ${fields.map(f=>{
+        const cur=simVals[f.key]||0;
+        const base=baseVals[f.key]||0;
+        const max=MAXES[src.key][f.key];
+        const step=STEPS[f.key]||1;
+        const pct=Math.min(100,Math.round(cur/max*100));
+        const changed=cur!==base;
+        return `<div style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+            <span style="font-size:11px;font-weight:600;color:${changed?'#ecbf5a':'#6e7a96'}">${FIELD_LABELS[f.key]||f.key}</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              ${changed?`<span style="font-size:10px;color:#3a4660;text-decoration:line-through">${fmtVal(f.key,base)}</span>`:''}
+              <span style="font-size:13px;font-weight:800;color:${changed?'#ecbf5a':'#eef0f7'}">${fmtVal(f.key,cur)}</span>
+            </div>
+          </div>
+          <div style="position:relative;height:28px;display:flex;align-items:center">
+            <div style="position:absolute;left:0;right:0;height:5px;background:#1f2d4a;border-radius:3px;overflow:hidden">
+              <div style="height:100%;border-radius:3px;background:${src.color};width:${pct}%;transition:width 0.2s"></div>
+            </div>
+            <input type="range" min="0" max="${max}" step="${step}" value="${cur}" style="position:relative;width:100%;opacity:0;height:28px;cursor:pointer;z-index:2" oninput="(function(v){const d=JSON.parse(JSON.stringify(S.simDraft));d['${src.key}']['${f.key}']=parseFloat(v)||0;ss({simDraft:d})})(this.value)">
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+  return `<div class="app-body">
+    <div class="top-bar">${logo()}</div>
+    <p style="font-size:22px;font-weight:800;color:#eef0f7;margin-bottom:4px">Score Simulator 🎯</p>
+    <p style="font-size:13px;color:#6e7a96;margin-bottom:16px;font-style:italic">Drag any slider to see how your index would change.</p>
+    <div style="background:#1a2640;border-radius:16px;padding:16px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.08)">
+      <div style="display:flex;align-items:stretch;gap:0">
+        <div style="flex:1;text-align:center;padding:12px">
+          <p style="font-size:10px;font-weight:700;color:#6e7a96;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Current</p>
+          <p style="font-size:52px;font-weight:800;line-height:1;color:${baseLv.color};margin-bottom:4px">${base}</p>
+          <p style="font-size:11px;font-weight:600;color:${baseLv.color}">${baseLv.label}</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 8px">
+          <p style="font-size:22px;font-weight:800;color:${deltaColor};margin-bottom:4px">${deltaLabel}</p>
+          <p style="font-size:20px;color:#3a4660">→</p>
+        </div>
+        <div style="flex:1;text-align:center;padding:12px;background:${delta!==0?'rgba(236,191,90,0.04)':'transparent'};border-radius:12px;border:${delta!==0?'1px solid rgba(236,191,90,0.15)':'1px solid transparent'}">
+          <p style="font-size:10px;font-weight:700;color:#6e7a96;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Simulated</p>
+          <p style="font-size:52px;font-weight:800;line-height:1;color:${simLv.color};margin-bottom:4px">${sim.total}</p>
+          <p style="font-size:11px;font-weight:600;color:${simLv.color}">${simLv.label}</p>
+        </div>
+      </div>
+      ${delta!==0?`<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07)">
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${SRCS.map(s=>{const bd=baseScores[s.key]||0;const sd=sim.scores[s.key]||0;const d=sd-bd;if(d===0)return '';return `<div style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;background:${d>0?'rgba(52,212,112,0.1)':'rgba(224,90,122,0.1)'};border:1px solid ${d>0?'rgba(52,212,112,0.25)':'rgba(224,90,122,0.25)'}"><span style="font-size:10px;font-weight:700;color:${s.color}">${s.label}</span><span style="font-size:10px;font-weight:800;color:${d>0?'#34d470':'#e05a7a'}">${d>0?'+'+d:d}</span></div>`;}).join('')}
+        </div>
+      </div>`:''}
+    </div>
+    ${delta!==0?`${sim.total>=70&&base<70?`<div style="background:rgba(236,191,90,0.08);border:1px solid rgba(236,191,90,0.3);border-radius:12px;padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px"><span style="font-size:24px">🏆</span><div><p style="font-size:13px;font-weight:700;color:#ecbf5a">You'd reach Board-Level Icon!</p><p style="font-size:11px;color:#b0b8d0">The top tier of the ExecQ Index.</p></div></div>`:''}
+    ${sim.total>=55&&base<55?`<div style="background:rgba(107,159,245,0.08);border:1px solid rgba(107,159,245,0.3);border-radius:12px;padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px"><span style="font-size:24px">⬆️</span><div><p style="font-size:13px;font-weight:700;color:#6b9ff5">You'd reach Industry Authority!</p><p style="font-size:11px;color:#b0b8d0">Top 15% of executives at your level.</p></div></div>`:''}
+    ${sim.total>=40&&base<40?`<div style="background:rgba(52,212,112,0.08);border:1px solid rgba(52,212,112,0.3);border-radius:12px;padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px"><span style="font-size:24px">🌟</span><div><p style="font-size:13px;font-weight:700;color:#34d470">You'd reach Rising Star!</p><p style="font-size:11px;color:#b0b8d0">Your brand is starting to work for you.</p></div></div>`:''}
+    `:''}
+    ${SRCS.map(src=>sliderSection(src)).join('')}
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-gold" style="flex:2;margin-bottom:0;padding:13px" onclick="switchTab('Signals')">Enter These Stats for Real →</button>
+      <button class="btn btn-ghost" style="flex:1;margin-bottom:0;padding:13px" onclick="ss({simDraft:JSON.parse(JSON.stringify(S.signals))})">Reset</button>
+    </div>
+    <p style="font-size:11px;color:#3a4660;text-align:center;margin-top:10px">Simulated scores don't affect your real ExecQ Index</p>
+  </div>`;
+}
+const TABS=[{id:'Home',icon:'⚡',lbl:'Home'},{id:'Briefing',icon:'☀️',lbl:'Briefing'},{id:'Signals',icon:'📡',lbl:'Signals'},{id:'Roadmap',icon:'🗺',lbl:'Roadmap'},{id:'Opps',icon:'🚀',lbl:'Momentum'},{id:'Sim',icon:'🎯',lbl:'Simulate'},{id:'Profile',icon:'👤',lbl:'Profile'}];
 function tabBar(){return`<div class="tab-bar" id="tab-bar">${TABS.map(t=>`<div class="tab${S.activeTab===t.id?' active':''}" onclick="switchTab('${t.id}')"><span class="tab-icon">${t.icon}</span><span class="tab-lbl${S.activeTab===t.id?' active':''}">${t.lbl}</span></div>`).join('')}</div>`;}
 function switchTab(t){ss({activeTab:t,sigDraft:JSON.parse(JSON.stringify(S.signals)),sigEdited:{}});setTimeout(()=>{const b=document.getElementById('tab-bar');if(b){const a=b.querySelector('.tab.active');if(a)a.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});}},60);}
 function renderSkel(){return`<div class="app-body"><div class="top-bar">${logo()}</div><div class="skel" style="height:80px;width:60%;margin-bottom:8px"></div><div class="skel" style="height:14px;width:40%;margin-bottom:24px"></div><div class="card"><div class="skel" style="height:72px;width:50%;margin-bottom:12px"></div><div class="skel" style="height:8px;margin-bottom:6px"></div><div class="skel" style="height:8px;width:85%"></div></div></div>`;}
-function renderApp(){if(S.showLI)return`<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">${renderLIFlow()}</div>`;if(!S.skelDone){setTimeout(()=>ss({skelDone:true}),800);return`<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">${renderSkel()}${tabBar()}</div>`;}const tabs={Home:renderHome,Briefing:renderBriefing,Signals:renderSignals,Roadmap:renderRoadmap,Opps:renderOpps,Profile:renderProfile};return`<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">${(tabs[S.activeTab]||renderHome)()}${tabBar()}</div>`;}
+function renderApp(){if(S.showLI)return`<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">${renderLIFlow()}</div>`;if(!S.skelDone){setTimeout(()=>ss({skelDone:true}),800);return`<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">${renderSkel()}${tabBar()}</div>`;}const tabs={Home:renderHome,Briefing:renderBriefing,Signals:renderSignals,Roadmap:renderRoadmap,Opps:renderOpps,Sim:renderSim,Profile:renderProfile};return`<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">${(tabs[S.activeTab]||renderHome)()}${tabBar()}</div>`;}
 function render(){const root=document.getElementById('root');if(!root)return;if(S.screen!=='app'){const map={loading:`<div style="display:flex;align-items:center;justify-content:center;height:100%"><div style="text-align:center"><div style="font-size:36px">⚡</div><div class="spin" style="margin:16px auto 0"></div></div></div>`,beta_gate:renderBetaGate(),beta_welcome:renderBetaWelcome(),splash:renderSplash(),auth:renderAuth(),prof1:renderProf1(),prof2:renderProf2(),prof3:renderProf3(),prof4:renderProf4(),prof5:renderProf5(),calc:renderCalc()};root.innerHTML=map[S.screen]||map.loading;return;}root.innerHTML=renderApp();setTimeout(()=>{animateBars();[['home-score',S.indexResult?.total??0],['sig-score',calcIndex(S.sigDraft).total],['prof-score',S.indexResult?.total??0],['calc-score',S.calcResult?.total??0],['li3-s',S.indexResult?.total??0]].forEach(([id,val])=>{const el=document.getElementById(id);if(el&&val>0)animateCount(el,val,700);});const b=document.getElementById('tab-bar');if(b){const a=b.querySelector('.tab.active');if(a)a.scrollIntoView({behavior:'instant',inline:'center',block:'nearest'});}},60);}
 SA.onAuthStateChanged(async(user)=>{if(user&&user.uid!=='demo'){const saved=await SDB.get(user.uid);if(saved&&saved.indexResult){S.ud={name:saved.name||'',title:saved.title||'',company:saved.company||'',industry:saved.industry||'',expertise:saved.expertise||'',goals:saved.goals||[],shareEcosystem:saved.shareEcosystem??true,partnerActivations:saved.partnerActivations??true,searchAlerts:saved.searchAlerts??false};S.indexResult=saved.indexResult;if(saved.signals){S.signals=saved.signals;S.sigDraft=JSON.parse(JSON.stringify(saved.signals));}if(saved.scoreHistory){S.scoreHistory=saved.scoreHistory;}ss({screen:'app',user,skelDone:false});}else ss({screen:S.screen==='loading'?'splash':S.screen,user});}else if(!user){const bv=_lsGet('execq_beta_verified');ss({screen:bv?'splash':'beta_gate',betaVerified:!!bv,user:null});}});
 render();
