@@ -842,7 +842,7 @@ function renderProfile(){
       +'<input type="text" id="src-name" placeholder="e.g. Axios Pro Rata"></div>'
       +'<div class="ig" style="margin-bottom:10px"><label class="lbl" style="margin-bottom:5px">URL (optional)</label>'
       +'<input type="text" id="src-url" placeholder="e.g. axios.com/pro"></div>'
-      +'<button onclick="addCustomSource()" style="width:100%;background:#ecbf5a;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:800;color:#0a0f1e;cursor:pointer">+ Add Source</button>'
+<button onclick="addCustomSource()" style="width:100%;background:#ecbf5a;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:800;color:#0a0f1e;cursor:pointer">+ Add Source</button>
       +'</div>'
       +'<div onclick="SA.signOut().then(()=>ss({screen:\'splash\',user:null,indexResult:null,signals:JSON.parse(JSON.stringify(DEF)),ud:{name:\'\',title:\'\',company:\'\',industry:\'\',expertise:\'\',goals:[],shareEcosystem:true,partnerActivations:true,searchAlerts:false}}))" class="click" style="background:#1a2640;border-radius:14px;border:1px solid rgba(255,255,255,0.07);padding:14px"><p style="font-size:14px;font-weight:600;color:#6e7a96">Sign Out</p></div>'
       +'</div>';
@@ -984,20 +984,8 @@ function switchTab(t){ss({activeTab:t,sigDraft:JSON.parse(JSON.stringify(S.signa
 function renderSkel(){return`<div class="app-body"><div class="top-bar">${logo()}</div><div class="skel" style="height:80px;width:60%;margin-bottom:8px"></div><div class="skel" style="height:14px;width:40%;margin-bottom:24px"></div><div class="card"><div class="skel" style="height:72px;width:50%;margin-bottom:12px"></div><div class="skel" style="height:8px;margin-bottom:6px"></div><div class="skel" style="height:8px;width:85%"></div></div></div>`;}
 function renderApp(){if(S.showLI)return`<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">${renderLIFlow()}</div>`;if(!S.skelDone){setTimeout(()=>ss({skelDone:true}),800);return`<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">${renderSkel()}${tabBar()}</div>`;}const tabs={Home:renderHome,Briefing:renderBriefing,Signals:renderSignals,Roadmap:renderRoadmap,Opps:renderOpps,Sim:renderSim,Profile:renderProfile};return`<div style="display:flex;flex-direction:column;height:100%;overflow:hidden">${(tabs[S.activeTab]||renderHome)()}${tabBar()}</div>`;}
 function render(){const root=document.getElementById('root');if(!root)return;if(S.screen!=='app'){const map={loading:`<div style="display:flex;align-items:center;justify-content:center;height:100%"><div style="text-align:center"><div style="font-size:36px">⚡</div><div class="spin" style="margin:16px auto 0"></div></div></div>`,beta_gate:renderBetaGate(),beta_welcome:renderBetaWelcome(),splash:renderSplash(),auth:renderAuth(),prof1:renderProf1(),prof2:renderProf2(),prof3:renderProf3(),prof4:renderProf4(),prof5:renderProf5(),calc:renderCalc()};root.innerHTML=map[S.screen]||map.loading;return;}root.innerHTML=renderApp();setTimeout(()=>{animateBars();[['home-score',S.indexResult?.total??0],['sig-score',calcIndex(S.sigDraft).total],['prof-score',S.indexResult?.total??0],['calc-score',S.calcResult?.total??0],['li3-s',S.indexResult?.total??0]].forEach(([id,val])=>{const el=document.getElementById(id);if(el&&val>0)animateCount(el,val,700);});const b=document.getElementById('tab-bar');if(b){const a=b.querySelector('.tab.active');if(a)a.scrollIntoView({behavior:'instant',inline:'center',block:'nearest'});}},60);}
-function addCustomSource(){
-  var ni=document.getElementById('src-name');
-  var ui=document.getElementById('src-url');
-  if(!ni){alert('Input not found');return;}
-  var name=ni.value.trim();
-  if(!name){ni.focus();return;}
-  var c=(S.customSources||[]).slice();
-  c.push({name:name,url:ui?ui.value.trim():''});
-  ni.value='';if(ui)ui.value='';
-  S.customSources=c;
-  saveUserData();
-  render();
-}
+
  
 SA.onAuthStateChanged(async(user)=>{if(user&&user.uid!=='demo'){const saved=await SDB.get(user.uid);if(saved&&saved.indexResult){S.ud={name:saved.name||'',title:saved.title||'',company:saved.company||'',industry:saved.industry||'',expertise:saved.expertise||'',goals:saved.goals||[],shareEcosystem:saved.shareEcosystem??true,partnerActivations:saved.partnerActivations??true,searchAlerts:saved.searchAlerts??false};S.indexResult=saved.indexResult;if(saved.signals){S.signals=saved.signals;S.sigDraft=JSON.parse(JSON.stringify(saved.signals));}if(saved.scoreHistory){S.scoreHistory=saved.scoreHistory;}if(saved.customSources){S.customSources=saved.customSources;}S.briefSources=getDefaultSources(S.ud.industry);ss({screen:'app',user,skelDone:false});}else ss({screen:S.screen==='loading'?'splash':S.screen,user});}else if(!user){const bv=_lsGet('execq_beta_verified');ss({screen:bv?'splash':'beta_gate',betaVerified:!!bv,user:null});}});
+function addCustomSource(){var ni=document.getElementById('src-name');var ui=document.getElementById('src-url');if(!ni)return;var name=ni.value.trim();if(!name){ni.focus();return;}var c=(S.customSources||[]).slice();c.push({name:name,url:ui?ui.value.trim():''});ni.value='';if(ui)ui.value='';S.customSources=c;saveUserData();render();}
 render();
-</script></body></html>
