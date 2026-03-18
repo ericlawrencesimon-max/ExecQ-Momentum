@@ -987,7 +987,7 @@ function render(){const root=document.getElementById('root');if(!root)return;if(
 function addCustomSource(){
   var ni=document.getElementById('src-name');
   var ui=document.getElementById('src-url');
-  if(!ni){alert('Input not found');return;}
+ 
   var name=ni.value.trim();
   if(!name){ni.focus();return;}
   var c=(S.customSources||[]).slice();
@@ -1000,4 +1000,5 @@ function addCustomSource(){
  
 SA.onAuthStateChanged(async(user)=>{if(user&&user.uid!=='demo'){const saved=await SDB.get(user.uid);if(saved&&saved.indexResult){S.ud={name:saved.name||'',title:saved.title||'',company:saved.company||'',industry:saved.industry||'',expertise:saved.expertise||'',goals:saved.goals||[],shareEcosystem:saved.shareEcosystem??true,partnerActivations:saved.partnerActivations??true,searchAlerts:saved.searchAlerts??false};S.indexResult=saved.indexResult;if(saved.signals){S.signals=saved.signals;S.sigDraft=JSON.parse(JSON.stringify(saved.signals));}if(saved.scoreHistory){S.scoreHistory=saved.scoreHistory;}if(saved.customSources){S.customSources=saved.customSources;}S.briefSources=getDefaultSources(S.ud.industry);ss({screen:'app',user,skelDone:false});}else ss({screen:S.screen==='loading'?'splash':S.screen,user});}else if(!user){const bv=_lsGet('execq_beta_verified');ss({screen:bv?'splash':'beta_gate',betaVerified:!!bv,user:null});}});
 render();
+function addCustomSource(){var ni=document.getElementById('src-name');var ui=document.getElementById('src-url');if(!ni)return;var name=ni.value.trim();if(!name){ni.focus();return;}var c=(S.customSources||[]).slice();c.push({name:name,url:ui?ui.value.trim():''});ni.value='';if(ui)ui.value='';S.customSources=c;saveUserData();render();}
 </script></body></html>
