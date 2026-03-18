@@ -183,20 +183,104 @@ function renderBetaWelcome(){return`<div class="page"><div class="page-body" sty
 function renderAuth(){return`<div class="page"><div class="page-body" style="justify-content:flex-start;padding-top:40px"><div style="width:56px;height:56px;border-radius:18px;background:#1a2640;border:1px solid rgba(236,191,90,0.3);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px">⚡</div><p style="font-size:22px;font-weight:800;color:#eef0f7;margin-bottom:6px">${AM==='signup'?'Create your account.':'Welcome back.'}</p><p style="font-size:13px;color:#6e7a96;margin-bottom:22px;font-style:italic">${AM==='signup'?'Your executive intelligence platform awaits.':'Sign in to your dashboard.'}</p><div class="ig"><label class="lbl">Email</label><input type="email" id="ae" placeholder="you@company.com"></div><div class="ig"><label class="lbl">Password</label><input type="password" id="ap" placeholder="Min. 6 characters"></div><p id="aerr" style="color:#e05a7a;font-size:13px;margin-bottom:10px;text-align:center;display:none"></p><p style="font-size:13px;color:#6e7a96;text-align:center;cursor:pointer;margin-top:8px" onclick="AM=AM==='signup'?'login':'signup';ss({})">${AM==='signup'?'Already have an account? ':'No account? '}<span style="color:#ecbf5a">${AM==='signup'?'Sign in':'Sign up'}</span></p></div><div class="page-foot"><button class="btn btn-gold" onclick="doAuth()">${AM==='signup'?'Create Account →':'Sign In →'}</button><button class="btn btn-demo" onclick="enterDemo()">⚡ Try Demo Mode instead</button></div></div>`;}
 async function doAuth(){const e=document.getElementById('ae')?.value||'';const p=document.getElementById('ap')?.value||'';const err=document.getElementById('aerr');if(err)err.style.display='none';try{let u;if(AM==='login'){u=await SA.signIn(e,p);}else{u=await SA.createUser(e,p);}ss({user:u,screen:AM==='login'?'app':'prof1'});}catch(ex){if(err){err.textContent=ex.message;err.style.display='block';}}}
 function obWrap(step,title,sub,body,nextLabel,nextFn,skipFn){return`<div class="page"><div class="page-body" style="justify-content:flex-start;padding-top:32px">${logo()}${prog(step,6)}<p style="font-size:22px;font-weight:800;color:#eef0f7;line-height:1.25;margin-bottom:8px">${title}</p><p style="font-size:13px;color:#6e7a96;margin-bottom:20px;font-style:italic">${sub}</p>${body}</div><div class="page-foot"><button class="btn btn-gold" onclick="${nextFn}">${nextLabel}</button>${skipFn?`<button class="btn btn-ghost" onclick="${skipFn}">Skip for now</button>`:''}</div></div>`;}
-function renderProf1(){const d=S.ud;const body=`${[{l:'Your First Name',k:'n',p:'e.g. Alex'},{l:'Job Title',k:'t',p:'e.g. SVP of Marketing'},{l:'Company',k:'c',p:'e.g. TechVanguard Inc.'}].map(f=>`<div class="ig"><label class="lbl">${f.l}</label><input type="text" id="p${f.k}" value="${f.k==='n'?d.name:f.k==='t'?d.title:d.company}" placeholder="${f.p}"></div>`).join('')}`;return obWrap(1,'Let\'s start with the basics.','Personalizes your ExecQ Index from day one.',body,'Continue →','saveProf1()','');}
+function renderProf1(){
+  const d=S.ud;
+  const body='<div style="display:flex;flex-direction:column;gap:12px">'
+    +'<div class="ig" style="margin-bottom:0"><label class="lbl">Your First Name</label>'
+    +'<input type="text" id="pn" value="'+(d.name||'')+'" placeholder="e.g. Alex" style="font-size:16px"></div>'
+    +'<div class="ig" style="margin-bottom:0"><label class="lbl">Job Title</label>'
+    +'<input type="text" id="pt" value="'+(d.title||'')+'" placeholder="e.g. SVP of Marketing"></div>'
+    +'<div class="ig" style="margin-bottom:0"><label class="lbl">Company</label>'
+    +'<input type="text" id="pc" value="'+(d.company||'')+'" placeholder="e.g. TechVanguard Inc."></div></div>'
+    +'<div style="background:rgba(236,191,90,0.05);border:1px solid rgba(236,191,90,0.12);border-radius:12px;padding:12px 14px;margin-top:14px;display:flex;gap:10px;align-items:flex-start">'
+    +'<span style="font-size:16px">&#128274;</span>'
+    +'<p style="font-size:11px;color:#6e7a96;line-height:1.6">Your name and title personalize your ExecQ Index. Never shared without your consent.</p>'
+    +'</div>';
+  return obWrap(1,'Let\'s build your profile.','Takes 2 minutes — your index is calculated from this.',body,'Continue →','saveProf1()','');
+}
 function saveProf1(){const d=S.ud;d.name=document.getElementById('pn')?.value||'';d.title=document.getElementById('pt')?.value||'';d.company=document.getElementById('pc')?.value||'';ss({ud:d,screen:'prof2'});}
-function renderProf2(){const inds=['Technology','Financial Services','Healthcare','Retail & Consumer','Media & Marketing','Professional Services','Manufacturing','Other'];const body=`<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">${inds.map(i=>`<div onclick="selInd('${i}')" class="click" style="padding:9px 14px;border-radius:20px;background:${S.ud.industry===i?'rgba(236,191,90,0.12)':'#1a2640'};border:1px solid ${S.ud.industry===i?'rgba(236,191,90,0.4)':'rgba(255,255,255,0.08)'};font-size:13px;color:${S.ud.industry===i?'#ecbf5a':'#6e7a96'};font-weight:600">${i}</div>`).join('')}</div><div class="ig"><label class="lbl">Area of Expertise</label><input type="text" id="pexp" value="${S.ud.expertise||''}" placeholder="e.g. AI in Marketing, Brand Strategy"></div>`;return obWrap(2,'What\'s your world?','We\'ll curate your briefings around your industry.',body,'Continue →','saveProf2()','');}
+function renderProf2(){
+  const inds=['Technology','Financial Services','Healthcare','Retail & Consumer','Media & Marketing','Professional Services','Manufacturing','Other'];
+  let body='<p style="font-size:12px;color:#6e7a96;margin-bottom:14px;line-height:1.5">Shapes your benchmark comparisons and briefing content.</p>';
+  body+='<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">';
+  inds.forEach(function(ind){
+    const on=S.ud.industry===ind;
+    body+='<div onclick="selInd(this.getAttribute(\'data-ind\'))" data-ind="'+ind+'" class="click" style="padding:10px 16px;border-radius:20px;background:'+(on?'rgba(236,191,90,0.12)':'#1a2640')+';border:1px solid '+(on?'rgba(236,191,90,0.4)':'rgba(255,255,255,0.08)')+';font-size:13px;color:'+(on?'#ecbf5a':'#6e7a96')+';font-weight:600;display:flex;align-items:center;gap:6px">'+(on?'<span style="font-size:11px">&#10003;</span>':'')+ind+'</div>';
+  });
+  body+='</div><div class="ig"><label class="lbl">Area of Expertise</label>'
+    +'<p style="font-size:11px;color:#3a4660;margin-bottom:7px">Topics you speak, write, or advise on</p>'
+    +'<input type="text" id="pexp" value="'+(S.ud.expertise||'')+'" placeholder="e.g. AI in Marketing, Brand Strategy"></div>';
+  return obWrap(2,'What\'s your industry?','Personalizes benchmarks and briefings for your world.',body,'Continue →','saveProf2()','');
+}
 function selInd(i){const d=S.ud;d.industry=i;ss({ud:d});}
 function saveProf2(){const d=S.ud;d.expertise=document.getElementById('pexp')?.value||'';ss({ud:d,screen:'prof3'});}
-function renderProf3(){const goals=[{id:'influence',e:'📣',t:'Build My Influence',s:'Grow visibility on LinkedIn, podcasts & press'},{id:'speaking',e:'🎤',t:'Land Speaking Roles',s:'Keynotes at major industry events'},{id:'board',e:'🏛',t:'Board & Advisory Roles',s:'Position myself for board opportunities'},{id:'network',e:'🤝',t:'Grow My Network',s:'Connect with top executives'},{id:'content',e:'✍️',t:'Amplify My Content',s:'Boost thought leadership & engagement'}];const body=goals.map(g=>{const on=(S.ud.goals||[]).includes(g.id);return`<div onclick="togGoal('${g.id}')" class="click" style="background:${on?'rgba(236,191,90,0.04)':'#1a2640'};border-radius:14px;padding:13px;margin-bottom:9px;display:flex;align-items:center;gap:12px;border:1px solid ${on?'rgba(236,191,90,0.35)':'rgba(255,255,255,0.07)'}"><span style="font-size:20px">${g.e}</span><div style="flex:1"><p style="font-size:13px;font-weight:700;color:#eef0f7;margin-bottom:2px">${g.t}</p><p style="font-size:11px;color:#6e7a96">${g.s}</p></div><div style="width:24px;height:24px;border-radius:8px;background:${on?'#ecbf5a':'#1f2d4a'};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:${on?'#0a0f1e':'#6e7a96'}">${on?'✓':'+'}</div></div>`}).join('');return obWrap(3,'What do you want to achieve?','Choose all that feel right.',body,'Continue →','ss({screen:\'prof4\'})','');}
+function renderProf3(){
+  const goals=[
+    {id:'influence',e:'&#128227;',t:'Build My Influence',s:'Grow visibility on LinkedIn, podcasts & press'},
+    {id:'speaking',e:'&#127908;',t:'Land Speaking Roles',s:'Keynotes, panels, and industry events'},
+    {id:'board',e:'&#127963;',t:'Board & Advisory Roles',s:'Position myself for board opportunities'},
+    {id:'network',e:'&#129309;',t:'Grow My Network',s:'Connect with top executives in my field'},
+    {id:'content',e:'&#9997;&#65039;',t:'Amplify My Content',s:'Boost thought leadership & engagement'}
+  ];
+  const selected=(S.ud.goals||[]).length;
+  let body='<p style="font-size:12px;color:#6e7a96;margin-bottom:14px;line-height:1.5">Select all that apply — shapes your opportunities and coaching.</p>';
+  goals.forEach(function(g){
+    const on=(S.ud.goals||[]).includes(g.id);
+    body+='<div onclick="togGoal(this.getAttribute(\'data-gid\'))" data-gid="'+g.id+'" class="click" style="background:'+(on?'rgba(236,191,90,0.05)':'#1a2640')+';border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;border:1px solid '+(on?'rgba(236,191,90,0.35)':'rgba(255,255,255,0.07)')+'"><span style="font-size:22px;width:36px;text-align:center;flex-shrink:0">'+g.e+'</span><div style="flex:1"><p style="font-size:13px;font-weight:700;color:#eef0f7;margin-bottom:2px">'+g.t+'</p><p style="font-size:11px;color:#6e7a96">'+g.s+'</p></div><div style="width:26px;height:26px;border-radius:8px;background:'+(on?'#ecbf5a':'#1f2d4a')+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:'+(on?'#0a0f1e':'#3a4660')+';flex-shrink:0">'+(on?'&#10003;':'+'  )+'</div></div>';
+  });
+  body+=(selected>0?'<p style="font-size:11px;color:#ecbf5a;text-align:center;margin-top:6px">'+selected+' goal'+(selected===1?'':'s')+' selected &#10003;</p>':'<p style="font-size:11px;color:#3a4660;text-align:center;margin-top:6px">Select at least one to continue</p>');
+  return obWrap(3,'What are you working toward?','Choose all that feel right — update these any time.',body,'Continue →','ss({screen:\'prof4\'})','');
+}
 function togGoal(id){const d=S.ud;const c=d.goals||[];d.goals=c.includes(id)?c.filter(g=>g!==id):[...c,id];ss({ud:d});}
-function renderProf4(){const d=S.ud;const f=S.liManual||{followers:'',connections:''};const body=`<div style="background:#1a2640;border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:20px;border:1px solid rgba(10,102,194,0.3)"><div style="font-size:16px;font-weight:900;color:#0a66c2;width:36px;height:36px;background:rgba(10,102,194,0.1);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0">in</div><div><p style="font-size:13px;font-weight:700;color:#eef0f7;margin-bottom:2px">Enter your LinkedIn stats</p><p style="font-size:11px;color:#6e7a96">Your follower and connection count</p></div></div><div class="ig"><label class="lbl">LinkedIn Followers</label><p class="hint">Find this on your LinkedIn profile page</p><input type="number" id="li-followers" value="${f.followers}" placeholder="e.g. 4200" min="0" placeholder="e.g. 4200" min="0"></div><div class="ig"><label class="lbl">Connections</label><p class="hint">Your 1st-degree connections (max shown is 500+)</p><input type="number" id="li-connections" placeholder="e.g. 500" min="0"></div>`;return`<div class="page"><div class="page-body" style="justify-content:flex-start;padding-top:32px">${logo()}${prog(4,6)}<p style="font-size:22px;font-weight:800;color:#eef0f7;line-height:1.25;margin-bottom:8px">Your LinkedIn presence.</p><p style="font-size:13px;color:#6e7a96;margin-bottom:20px;font-style:italic">Enter your stats to get your real ExecQ score.</p>${body}</div><div class="page-foot"><button class="btn btn-gold" onclick="saveProf4()">Continue →</button><button class="btn btn-ghost" onclick="ss({screen:'prof5'})">Skip for now</button></div></div>`;}
+function renderProf4(){
+  const curF=(S.signals&&S.signals.linkedin&&S.signals.linkedin.followers)||'';
+  const curC=(S.signals&&S.signals.linkedin&&S.signals.linkedin.connections)||'';
+  const body='<div style="background:rgba(10,102,194,0.06);border:1px solid rgba(10,102,194,0.2);border-radius:14px;padding:14px;margin-bottom:18px;display:flex;gap:12px;align-items:flex-start">'
+    +'<div style="font-size:16px;font-weight:900;color:#0a66c2;width:38px;height:38px;background:rgba(10,102,194,0.12);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0">in</div>'
+    +'<div><p style="font-size:13px;font-weight:700;color:#eef0f7;margin-bottom:4px">LinkedIn carries 30% of your score</p>'
+    +'<p style="font-size:11px;color:#6e7a96;line-height:1.6">More than any other signal. Even rough numbers here meaningfully improve accuracy.</p></div>'
+    +'</div>'
+    +'<div class="ig"><label class="lbl">LinkedIn Followers</label>'
+    +'<p style="font-size:11px;color:#3a4660;margin-bottom:7px">Open LinkedIn → tap your profile → follower count is below your name</p>'
+    +'<input type="number" id="li-followers" value="'+curF+'" placeholder="e.g. 4200" min="0" style="font-size:16px"></div>'
+    +'<div class="ig"><label class="lbl">Connections</label>'
+    +'<p style="font-size:11px;color:#3a4660;margin-bottom:7px">Your 1st-degree connections — shown as 500+ on LinkedIn</p>'
+    +'<input type="number" id="li-connections" value="'+curC+'" placeholder="e.g. 1200" min="0" style="font-size:16px"></div>';
+  return '<div class="page"><div class="page-body" style="justify-content:flex-start;padding-top:32px">'+logo()+prog(4,6)
+    +'<p style="font-size:22px;font-weight:800;color:#eef0f7;line-height:1.25;margin-bottom:4px">Your LinkedIn presence.</p>'
+    +'<p style="font-size:13px;color:#6e7a96;margin-bottom:20px;font-style:italic">The fastest way to get a real score.</p>'
+    +body+'</div>'
+    +'<div class="page-foot"><button class="btn btn-gold" onclick="saveProf4()">Calculate My Score →</button>'
+    +'<button class="btn btn-ghost" onclick="ss({screen:\'prof5\'})">Skip — enter later</button>'
+    +'</div></div>';
+}
 function saveProf4(){const followers=parseInt(document.getElementById('li-followers')?.value||'0')||0;const connections=parseInt(document.getElementById('li-connections')?.value||'0')||0;if(followers>0||connections>0){const draft=JSON.parse(JSON.stringify(DEF));draft.linkedin.followers=followers;draft.linkedin.connections=Math.min(connections,5000);draft.linkedin.engagementRate=2.5;const res=calcIndex(draft);ss({signals:draft,sigDraft:JSON.parse(JSON.stringify(draft)),indexResult:res,screen:'prof5'});if(S.user)SDB.set(S.user.uid,{...S.ud,signals:draft,indexResult:res});}else{ss({screen:'prof5'});}}
 function scanObLI(){const url=document.getElementById('ob-li-url')?.value||'';ss({liUrl:url,liUrlStatus:'validating'});if(!/^https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9\-_%]+\/?/.test(url.trim())){ss({liUrlStatus:'invalid'});return;}fetch('/api/proxycurl',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({linkedin_url:url.trim()})}).then(r=>r.json()).then(data=>{const draft=JSON.parse(JSON.stringify(DEF));if(!data.error&&data.code!==404){const followers=data.follower_count||0;const connections=data.connections||0;const posts=data.activities||[];const engagementRate=posts.length>0?Math.min(10,posts.reduce((a,p)=>a+(((p.num_likes||0)+(p.num_comments||0))/Math.max(1,followers)*100),0)/posts.length):0;draft.linkedin.followers=followers;draft.linkedin.connections=Math.min(connections,5000);draft.linkedin.engagementRate=Math.round(engagementRate*10)/10;ss({liUrlStatus:'valid',liDraft:draft,liEdited:{},liRealData:{name:data.full_name,headline:data.headline,followers,connections}});}else{ss({liUrlStatus:'valid',liDraft:draft,liEdited:{}});}}).catch(()=>{ss({liUrlStatus:'valid',liDraft:JSON.parse(JSON.stringify(DEF)),liEdited:{}});});}
 
 function goToProf5(){if(S.liDraft&&S.liUrlStatus==='valid'){const res=calcIndex(S.liDraft);if(S.user)SDB.set(S.user.uid,{...S.ud,signals:S.liDraft,indexResult:res});ss({signals:S.liDraft,sigDraft:JSON.parse(JSON.stringify(S.liDraft)),indexResult:res,screen:'prof5',liUrlStatus:null});}else{ss({screen:'prof5',liUrlStatus:null});}}
 function applyObLIData(){if(!S.liDraft)return;const res=calcIndex(S.liDraft);ss({signals:S.liDraft,sigDraft:JSON.parse(JSON.stringify(S.liDraft)),indexResult:res});if(S.user)SDB.set(S.user.uid,{...S.ud,signals:S.liDraft,indexResult:res});}
-function renderProf5(){const d=S.ud;const tog=(k,label,sub)=>`<div style="background:#1a2640;border-radius:14px;padding:13px;display:flex;align-items:center;margin-bottom:9px;border:1px solid rgba(255,255,255,0.07)"><div style="flex:1"><p style="font-size:13px;font-weight:700;color:#eef0f7;margin-bottom:2px">${label}</p><p style="font-size:11px;color:#6e7a96">${sub}</p></div><div style="width:42px;height:24px;border-radius:12px;background:${d[k]?'rgba(236,191,90,0.4)':'#1f2d4a'};position:relative;cursor:pointer;transition:background 0.25s;flex-shrink:0" onclick="const x={...S.ud};x['${k}']=!x['${k}'];ss({ud:x})"><div style="position:absolute;top:3px;left:${d[k]?'21px':'3px'};width:18px;height:18px;border-radius:9px;background:${d[k]?'#ecbf5a':'#3a4660'};transition:left 0.25s"></div></div></div>`;const body=tog('shareEcosystem','Share to Ecosystem','Anonymized signals only')+tog('partnerActivations','Partner Activations','Allow relevant partner introductions')+tog('searchAlerts','Executive Search Alerts','Notify me at key inflection points');return obWrap(5,'Your data, always yours.','ExecQ Momentum is private by default.',body,'Scan My Presence →','startCalc()','');}
+function renderProf5(){
+  const d=S.ud;
+  function tog(k,label,sub,detail){
+    const on=d[k];
+    return '<div style="background:#1a2640;border-radius:14px;padding:14px;display:flex;align-items:center;margin-bottom:10px;border:1px solid rgba(255,255,255,0.07)">'
+      +'<div style="flex:1;padding-right:12px"><p style="font-size:13px;font-weight:700;color:#eef0f7;margin-bottom:2px">'+label+'</p>'
+      +'<p style="font-size:11px;color:#6e7a96;margin-bottom:'+(detail?'3':'0')+'px">'+sub+'</p>'
+      +(detail?'<p style="font-size:10px;color:#3a4660">'+detail+'</p>':'')
+      +'</div>'
+      +'<div onclick="(function(){var x=Object.assign({},S.ud);x.'+k+'=!x.'+k+';ss({ud:x});})()" style="width:44px;height:26px;border-radius:13px;background:'+(on?'rgba(236,191,90,0.35)':'#1f2d4a')+';position:relative;cursor:pointer;transition:background 0.25s;flex-shrink:0">'
+      +'<div style="position:absolute;top:3px;left:'+(on?'21px':'3px')+';width:20px;height:20px;border-radius:10px;background:'+(on?'#ecbf5a':'#3a4660')+';transition:left 0.25s;box-shadow:0 1px 3px rgba(0,0,0,0.3)"></div></div></div>';
+  }
+  const body='<p style="font-size:12px;color:#6e7a96;margin-bottom:16px;line-height:1.6">ExecQ Momentum is private by default. Choose what, if anything, you\'d like to share.</p>'
+    +tog('shareEcosystem','Share to Partner Ecosystem','Anonymized signals only — no name or company','Enables relevant partner introductions and opportunities')
+    +tog('partnerActivations','Partner Activations','Allow curated partner introductions','Only from partners relevant to your goals')
+    +tog('searchAlerts','Executive Search Alerts','Get notified at key career inflection points','Based on your score trajectory, not personal data')
+    +'<div style="background:rgba(52,212,112,0.05);border:1px solid rgba(52,212,112,0.15);border-radius:12px;padding:12px 14px;margin-top:6px;display:flex;gap:10px;align-items:flex-start">'
+    +'<span style="font-size:14px;flex-shrink:0">&#10003;</span>'
+    +'<p style="font-size:11px;color:#6e7a96;line-height:1.6">Change these any time in Profile → Settings. Your data is never sold.</p>'
+    +'</div>';
+  return obWrap(5,'Your data, always yours.','Private by default. You control what gets shared.',body,'Scan My Presence →','startCalc()','');
+}
 let calcInt=null;
 function startCalc(){ss({screen:'calc',calcStep:0,calcDone:false,calcResult:null});const steps=['Connecting to LinkedIn...','Scanning podcast appearances...','Analyzing press & media mentions...','Detecting speaking engagements...','Reviewing blog & article authorship...','Checking board & advisory roles...','Running ExecQ Algorithm...'];let step=0;calcInt=setInterval(()=>{step++;ss({calcStep:step});if(step>=steps.length){clearInterval(calcInt);const sigs=S.signals&&S.signals.linkedin&&S.signals.linkedin.followers>0?S.signals:JSON.parse(JSON.stringify(DEF));const res=calcIndex(sigs);S.briefSources=getDefaultSources(S.ud.industry);ss({calcDone:true,calcResult:res,indexResult:res,signals:sigs});if(S.user)SDB.set(S.user.uid,{...S.ud,indexResult:res,signals:sigs});}},480);}
 function renderCalc(){
@@ -754,9 +838,9 @@ function renderProfile(){
       +customList
       +'<div style="background:#1a2640;border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.07);margin-bottom:14px">'
       +'<div class="ig" style="margin-bottom:8px"><label class="lbl" style="margin-bottom:5px">Publication Name</label>'
-      +'<input type="text" id="src-name" value="'+(S.customSourceInput||'')+'" placeholder="e.g. Axios Pro Rata" oninput="ss({customSourceInput:this.value})"></div>'
+      +'<input type="text" id="src-name" placeholder="e.g. Axios Pro Rata"></div>'
       +'<div class="ig" style="margin-bottom:10px"><label class="lbl" style="margin-bottom:5px">URL (optional)</label>'
-      +'<input type="text" id="src-url" value="'+(S.customSourceUrl||'')+'" placeholder="e.g. axios.com/pro" oninput="ss({customSourceUrl:this.value})"></div>'
+      +'<input type="text" id="src-url" placeholder="e.g. axios.com/pro"></div>'
       +'<button onclick="(function(){const name=(S.customSourceInput||\'\').trim();if(!name)return;const c=[...(S.customSources||[])];c.push({name,url:(S.customSourceUrl||\'\').trim()});ss({customSources:c,customSourceInput:\'\',customSourceUrl:\'\'});saveUserData();})()" style="width:100%;background:rgba(236,191,90,0.1);border:1px solid rgba(236,191,90,0.25);border-radius:10px;padding:10px;font-size:13px;font-weight:700;color:#ecbf5a;cursor:pointer">+ Add Source</button>'
       +'</div>'
       +'<div onclick="SA.signOut().then(()=>ss({screen:\'splash\',user:null,indexResult:null,signals:JSON.parse(JSON.stringify(DEF)),ud:{name:\'\',title:\'\',company:\'\',industry:\'\',expertise:\'\',goals:[],shareEcosystem:true,partnerActivations:true,searchAlerts:false}}))" class="click" style="background:#1a2640;border-radius:14px;border:1px solid rgba(255,255,255,0.07);padding:14px"><p style="font-size:14px;font-weight:600;color:#6e7a96">Sign Out</p></div>'
