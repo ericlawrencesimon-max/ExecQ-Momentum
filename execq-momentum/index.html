@@ -488,6 +488,8 @@ function renderShareOverlay(){
 
 async function fetchWeeklyReport(){
   ss({weeklyReportLoading:true,weeklyReport:null,weeklyReportError:null,weeklyReportOpen:true});
+  if(S.user&&S.user.uid==='demo'){setTimeout(function(){ss({weeklyReportLoading:false,weeklyReport:{summary:'Your momentum is building across key signals. LinkedIn presence is your strongest asset at 79, while Press and Speaking represent your biggest growth opportunities. Focus on 2-3 targeted media placements and one keynote in the next 90 days to accelerate into Board-Level Icon territory.',actions:[{signal:'press',title:'Land 3 targeted media placements',detail:'Pitch Forbes, Fast Company, or an industry trade pub with a data-backed point of view on AI in Marketing. One strong byline moves your Press score significantly.',impact:'high',timeframe:'30 days'},{signal:'speaking',title:'Secure a keynote or panel slot',detail:'Submit to 2 upcoming industry conferences. Your LinkedIn presence makes you a credible candidate. Focus on events where your target audience congregates.',impact:'high',timeframe:'60 days'},{signal:'linkedin',title:'Increase engagement rate',detail:'Post 3x per week with original insights rather than reposts. Your follower count is strong — engagement rate is the gap to close.',impact:'medium',timeframe:'ongoing'}],momentum:'building',nextMilestone:'Board-Level Icon at 70+'}});},800);return;}
+
   const{ud,indexResult:ir,signals:sig,scoreHistory:hist}=S;
   const score=ir?.total??0;
   const scores=ir?.scores??{};
