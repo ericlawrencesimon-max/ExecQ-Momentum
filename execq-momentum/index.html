@@ -486,6 +486,7 @@ function renderShareOverlay(){
 }
 
 async function fetchWeeklyReport(){
+  if(S.user&&S.user.uid==='demo'){setTimeout(function(){ss({weeklyReportLoading:false,week
   ss({weeklyReportLoading:true,weeklyReport:null,weeklyReportError:null,weeklyReportOpen:true});
   const{ud,indexResult:ir,signals:sig,scoreHistory:hist}=S;
   const score=ir?.total??0;
