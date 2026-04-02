@@ -68,14 +68,14 @@ function _lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
 function _lsDel(k){try{localStorage.removeItem(k);}catch{}}
 
 // Restore session on load
-(function(){const s=_lsGet('execq_session');if(s&&s.uid&&s.email){_cu={uid:s.uid,email:s.email};}})();
+(function(){const s=_lsGet('exechq_session');if(s&&s.uid&&s.email){_cu={uid:s.uid,email:s.email};}})();
 
 const SA={
   onAuthStateChanged:(cb)=>{_al.push(cb);setTimeout(()=>cb(_cu),80);return()=>{_al=_al.filter(l=>l!==cb)}},
   createUser:async(e,p)=>{
     if(!e.includes('@'))throw new Error('Please enter a valid email.');
     if(p.length<6)throw new Error('Password must be at least 6 characters.');
-    const existing=_lsGet('execq_acct_'+btoa(e));
+    const existing=_lsGet('exechq_acct_'+btoa(e));
     if(existing)throw new Error('Account already exists.');
     const u={uid:'uid_'+Date.now(),email:e};
     _lsSet('execq_acct_'+btoa(e),{p,u});
@@ -83,17 +83,17 @@ const SA={
     _cu=u;_al.forEach(l=>l(u));return u;
   },
   signIn:async(e,p)=>{
-    const r=_lsGet('execq_acct_'+btoa(e));
+    const r=_lsGet('exechq_acct_'+btoa(e));
     if(!r)throw new Error('No account found.');
     if(r.p!==p)throw new Error('Incorrect password.');
-    _lsSet('execq_session',r.u);
+    _lsSet('exechq_session',r.u);
     _cu=r.u;_al.forEach(l=>l(r.u));return r.u;
   },
-  signOut:async()=>{_lsDel('execq_session');_cu=null;_al.forEach(l=>l(null));}
+  signOut:async()=>{_lsDel('exechq_session');_cu=null;_al.forEach(l=>l(null));}
 };
 const SDB={
-  set:async(uid,d)=>{const existing=_lsGet('execq_user_'+uid)||{};const merged={...existing,...d};_lsSet('execq_user_'+uid,merged);},
-  get:async(uid)=>_lsGet('execq_user_'+uid)||null
+  set:async(uid,d)=>{const existing=_lsGet('exechq_user_'+uid)||{};const merged={...existing,...d};_lsSet('execq_user_'+uid,merged);},
+  get:async(uid)=>_lsGet('exechq_user_'+uid)||null
 };
 const W={linkedin:0.30,press:0.20,speaking:0.18,podcast:0.15,blog:0.10,board:0.07};
 function calcIndex(s){const _fl=s.linkedin?.followers||0;const _cl=s.linkedin?.connections||0;const _el=s.linkedin?.engagementRate||0;const _fs=_fl>0?Math.min(100,Math.log10(_fl+1)/Math.log10(50000)*100):0;const _cs=_cl>0?Math.min(100,Math.log10(_cl+1)/Math.log10(5000)*100):0;const _es=Math.min(100,(_el/10)*100);const sc={linkedin:Math.round(_fs*0.4+_cs*0.3+_es*0.3),press:Math.round((Math.min(100,((s.press?.mentionCount||0)/50)*100)*0.5)+((s.press?.avgOutletAuthority||0)*0.5)),speaking:Math.round((Math.min(100,((s.speaking?.eventCount||0)/20)*100)*0.5)+((s.speaking?.avgEventTier||0)*0.5)),podcast:Math.round((Math.min(100,((s.podcast?.appearanceCount||0)/30)*100)*0.5)+(Math.min(100,((s.podcast?.avgAudienceSize||0)/100000)*100)*0.5)),blog:Math.round((Math.min(100,((s.blog?.articleCount||0)/40)*100)*0.5)+((s.blog?.avgPlatformAuthority||0)*0.5)),board:Math.min(100,Math.round(((s.board?.roleCount||0)/5)*100))};return{total:Math.round(sc.linkedin*W.linkedin+sc.press*W.press+sc.speaking*W.speaking+sc.podcast*W.podcast+sc.blog*W.blog+sc.board*W.board),scores:sc};}
@@ -133,7 +133,7 @@ const DEMO_UD={name:'Alex Rivera',title:'SVP of Marketing',company:'TechVanguard
 const DEMO_SIGS=genEst('SVP of Marketing','Technology');
 const DEMO_IR=calcIndex(DEMO_SIGS);
 let AM='signup';
-const BETA_CODE='EXECQ2026';
+const BETA_CODE='EXECHQ2026';
 let S={screen:'loading',activeTab:'Home',user:null,ud:{name:'',title:'',company:'',industry:'',expertise:'',goals:[],shareEcosystem:true,partnerActivations:true,searchAlerts:false},indexResult:null,signals:JSON.parse(JSON.stringify(DEF)),notifs:JSON.parse(JSON.stringify(NOTIFS)),showCoach:false,coachData:null,coachLoading:false,coachError:null,showLI:false,liStep:1,liUrl:'',liUrlStatus:null,liDraft:null,liEdited:{},liOpen:{linkedin:true,press:false,speaking:false,podcast:false,blog:false,board:false},sigTab:'linkedin',sigDraft:JSON.parse(JSON.stringify(DEF)),sigEdited:{},sigSaved:false,profSec:'history',notifOpen:false,calcStep:0,calcDone:false,calcResult:null,skelDone:false,briefArticles:[],briefLoading:false,briefError:null,briefExpanded:{},briefCopied:{},briefSources:['Harvard Business Review','Forbes','Fast Company','MIT Sloan','LinkedIn News'],briefSetup:false,opps:[],oppsLoading:false,oppsError:null,oppsSetup:false,oppsFilter:'all',oppsExpanded:{},oppsManualOpen:false,oppsManual:{type:'',title:'',org:'',why:'',action:'',goal:''},scoreHistory:[],betaVerified:false,customSources:[],customSourceInput:'',customSourceUrl:'',postFormat:'thought_leadership',postTone:'professional',postResult:null,postLoading:false,postError:null,postCopied:false,postWeekCount:0,weeklyReport:null,weeklyReportLoading:false,weeklyReportError:null,weeklyReportOpen:false,whyNow:null,whyNowLoading:false,whyNowError:null,whyNowOpen:false};
 function ss(u){Object.assign(S,u);render();setTimeout(animateBars,50);}
 function saveUserData(){if(S.user&&S.user.uid!=='demo'){SDB.set(S.user.uid,{...S.ud,signals:S.signals,indexResult:S.indexResult,scoreHistory:S.scoreHistory||[],customSources:S.customSources||[]});}}
@@ -162,7 +162,7 @@ function renderSplash(){return`<div class="page"><div style="flex:1;display:flex
 <div style="display:flex;align-items:baseline;margin-bottom:4px;flex-shrink:0"><span style="font-size:30px;font-weight:800;color:#6e7a96">Exec</span><span style="font-size:30px;font-weight:800;color:#ecbf5a">Q</span><span style="font-size:30px;font-weight:800;color:#eef0f7"> Momentum</span></div>
 <p style="font-size:10px;color:#3a4660;letter-spacing:1.5px;margin-bottom:20px;flex-shrink:0;text-transform:uppercase">Executive Intelligence Platform</p>
 <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:320px;flex-shrink:0">
-  ${[['🎯','Know exactly where you stand','Your ExecQ Index scores your executive presence across 6 signals — vs. peers at your level'],['⚡','Act at the right moment','Live market signals tell you when now is the right time to make a move'],['🚀','Close the gap fast','Personalized opportunities, AI coaching, and content — all in one place']].map(([icon,title,desc])=>`<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 14px;display:flex;align-items:flex-start;gap:12px;text-align:left"><span style="font-size:18px;flex-shrink:0;margin-top:1px">${icon}</span><div><p style="font-size:13px;font-weight:700;color:#eef0f7;margin-bottom:2px">${title}</p><p style="font-size:11px;color:#6e7a96;line-height:1.5">${desc}</p></div></div>`).join('')}
+  ${[['🎯','Know exactly where you stand','Your ExecHQ Index scores your executive presence across 6 signals — vs. peers at your level'],['⚡','Act at the right moment','Live market signals tell you when now is the right time to make a move'],['🚀','Close the gap fast','Personalized opportunities, AI coaching, and content — all in one place']].map(([icon,title,desc])=>`<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 14px;display:flex;align-items:flex-start;gap:12px;text-align:left"><span style="font-size:18px;flex-shrink:0;margin-top:1px">${icon}</span><div><p style="font-size:13px;font-weight:700;color:#eef0f7;margin-bottom:2px">${title}</p><p style="font-size:11px;color:#6e7a96;line-height:1.5">${desc}</p></div></div>`).join('')}
 </div>
 </div>
 <div style="flex-shrink:0;padding:12px 24px 24px;background:#0a0f1e;border-top:1px solid rgba(255,255,255,0.06)">
@@ -194,7 +194,7 @@ function renderProf1(){
     +'<input type="text" id="pc" value="'+(d.company||'')+'" placeholder="e.g. TechVanguard Inc."></div></div>'
     +'<div style="background:rgba(236,191,90,0.05);border:1px solid rgba(236,191,90,0.12);border-radius:12px;padding:12px 14px;margin-top:14px;display:flex;gap:10px;align-items:flex-start">'
     +'<span style="font-size:16px">&#128274;</span>'
-    +'<p style="font-size:11px;color:#6e7a96;line-height:1.6">Your name and title personalize your ExecQ Index. Never shared without your consent.</p>'
+    +'<p style="font-size:11px;color:#6e7a96;line-height:1.6">Your name and title personalize your ExecHQ Index. Never shared without your consent.</p>'
     +'</div>';
   return obWrap(1,'Let\'s build your profile.','Takes 2 minutes — your index is calculated from this.',body,'Continue →','saveProf1()','');
 }
@@ -303,7 +303,7 @@ function renderCalc(){
   return`<div class="page"><div class="page-body" style="justify-content:flex-start;padding-top:36px;overflow-y:auto">
   ${!S.calcDone?`
   <div style="width:48px;height:48px;border-radius:14px;background:#1a2640;border:1px solid rgba(236,191,90,0.3);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px">⚡</div>
-  <p style="font-size:20px;font-weight:800;color:#eef0f7;line-height:1.3;margin-bottom:6px">Building your ExecQ Index${name?', '+name+'.':"..."}</p>
+  <p style="font-size:20px;font-weight:800;color:#eef0f7;line-height:1.3;margin-bottom:6px">Building your ExecHQ Index${name?', '+name+'.':"..."}</p>
   <p style="font-size:13px;color:#6e7a96;margin-bottom:24px;font-style:italic">Scanning your digital footprint across 6 signal categories.</p>
   <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px">
     ${steps.map((s,i)=>`<div style="display:flex;align-items:center;gap:10px;opacity:${i>=S.calcStep?0.35:1};transition:opacity 0.4s">
@@ -450,7 +450,7 @@ function drawShareCard(){
     ctx.fillText(s[0],sx+35,sy+40);
   });
   ctx.fillStyle='rgba(255,255,255,0.18)';ctx.font='bold 11px system-ui,sans-serif';
-  ctx.textAlign='left';ctx.fillText('\u26a1 ExecQMomentum.app',24,CH-18);
+  ctx.textAlign='left';ctx.fillText('\u26a1 ExecHQMomentum.app',24,CH-18);
   ctx.fillStyle='rgba(255,255,255,0.1)';ctx.textAlign='right';
   ctx.fillText('Private Beta \u00b7 '+new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'}),CW-24,CH-18);
 }
@@ -468,7 +468,7 @@ function renderShareOverlay(){
     +'<div style="width:36px;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;margin:0 auto 20px"></div>'
     +'<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">'
     +'<div style="width:44px;height:44px;border-radius:14px;background:rgba(236,191,90,0.12);border:1px solid rgba(236,191,90,0.25);display:flex;align-items:center;justify-content:center;font-size:22px">\ud83c\udfc6</div>'
-    +'<div><p style="font-size:17px;font-weight:800;color:#eef0f7">Share Your ExecQ Card</p><p style="font-size:11px;color:#6e7a96">Download + post to LinkedIn</p></div>'
+    +'<div><p style="font-size:17px;font-weight:800;color:#eef0f7">Share Your ExecHQ Card</p><p style="font-size:11px;color:#6e7a96">Download + post to LinkedIn</p></div>'
     +'<button onclick="ss({showShare:false})" style="margin-left:auto;background:rgba(255,255,255,0.06);border:none;border-radius:10px;width:32px;height:32px;font-size:16px;color:#6e7a96;cursor:pointer">\u2715</button>'
     +'</div>'
     +'<div style="background:#0a0f1e;border-radius:14px;overflow:hidden;margin-bottom:16px;border:1px solid rgba(255,255,255,0.08)"><canvas id="share-canvas" style="width:100%;display:block"></canvas></div>'
@@ -975,7 +975,7 @@ function renderSim(){
       <button class="btn btn-gold" style="flex:2;margin-bottom:0;padding:13px" onclick="switchTab('Signals')">Enter These Stats for Real →</button>
       <button class="btn btn-ghost" style="flex:1;margin-bottom:0;padding:13px" onclick="ss({simDraft:JSON.parse(JSON.stringify(S.signals))})">Reset</button>
     </div>
-    <p style="font-size:11px;color:#3a4660;text-align:center;margin-top:10px">Simulated scores don't affect your real ExecQ Index</p>
+    <p style="font-size:11px;color:#3a4660;text-align:center;margin-top:10px">Simulated scores don't affect your real ExecHQ Index</p>
   </div>`;
 }
 const TABS=[{id:'Home',icon:'⚡',lbl:'Home'},{id:'Briefing',icon:'☀️',lbl:'Daily'},{id:'Signals',icon:'📡',lbl:'Signals'},{id:'Roadmap',icon:'🗺',lbl:'Roadmap'},{id:'Opps',icon:'🚀',lbl:'Momentum'},{id:'Sim',icon:'🎯',lbl:'Simulate'},{id:'Profile',icon:'👤',lbl:'Profile'}];
