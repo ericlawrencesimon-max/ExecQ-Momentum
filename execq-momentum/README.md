@@ -1,4 +1,4 @@
-# ExecQ Momentum
+# ExecHQ Momentum
 
 Your private executive personal branding intelligence platform.
 
