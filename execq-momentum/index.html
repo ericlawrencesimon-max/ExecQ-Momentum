@@ -772,7 +772,8 @@ function renderProfile(){
   function renderProfileEdit(){
     return '<div>'
       +'<p class="stitle" style="margin-top:0">PERSONAL INFO</p>'
-      +[{l:'First Name',k:'name',p:'e.g. Alex'},{l:'Job Title',k:'title',p:'e.g. SVP of Marketing'},{l:'Company',k:'company',p:'e.g. TechVanguard'},{l:'Expertise',k:'expertise',p:'e.g. AI in Marketing'}].map(f=>'<div class="ig"><label class="lbl">'+f.l+'</label><input type="text" id="edit-'+f.k+'" value="'+(ud[f.k]||'')+'" placeholder="'+f.p+'"></div>').join('')
+      +[{l:'First Name',k:'name',p:'e.g. Alex'},{l:'Job Title',k:'title',p:'e.g. SVP of Marketing'},{l:'Company (optional)',k:'company',p:'e.g. TechVanguard'}
+,{l:'Expertise',k:'expertise',p:'e.g. AI in Marketing'}].map(f=>'<div class="ig"><label class="lbl">'+f.l+'</label><input type="text" id="edit-'+f.k+'" value="'+(ud[f.k]||'')+'" placeholder="'+f.p+'"></div>').join('')
       +'<button class="btn btn-gold" style="margin-top:12px" onclick="const d={...S.ud}; [\'name\',\'title\',\'company\',\'expertise\'].forEach(k=>{const el=document.getElementById(\'edit-\'+k);if(el)d[k]=el.value}); ss({ud:d})">Save Changes</button>'
       +'</div>';
   }
