@@ -597,7 +597,7 @@ ${score>0?`<div class="card" style="border:1px solid rgba(107,159,245,0.2);backg
 
 async function fetchPost(){
   ss({postLoading:true,postResult:null,postError:null,postCopied:false});
-const{ud,indexResult:ir,postFormat:fmt,postTone:tone,postPerspective:perspective}=S;
+const{ud,indexResult:ir,postFormat:fmt,postTone:tone}=S;const perspective=document.getElementById('post-perspective')?.value||S.postPerspective||'';
 
   const score=ir?.total??0;const scores=ir?.scores??{};const lv=getLevel(score);
   const fmtMap={'thought_leadership':'a bold thought leadership take — share a contrarian or forward-looking perspective on a trend in their industry','personal_story':'a personal story or professional lesson — something they learned the hard way or a turning point in their career','industry_insight':'a sharp industry insight — data-driven or observation-based, positioned as an expert take','hot_take':'a hot take or provocative opinion — designed to spark conversation and comments'};
