@@ -607,7 +607,7 @@ const perspective=document.getElementById('post-perspective')?.value||S.postPers
     const data=await r.json();
     if(data.error){ss({postLoading:false,postError:'API: '+data.error.message});return;}
     const text=data.content?.find(b=>b.type==='text')?.text||'';
-    const parsed=JSON.parse(text.replace(/```json|```/g,'').trim());
+    const clean=text.replace(/```json|```/g,'').trim();const start=clean.indexOf('{');const end=clean.lastIndexOf('}');const parsed=JSON.parse(clean.slice(start,end+1));
     ss({postLoading:false,postResult:parsed,postWeekCount:S.postWeekCount+1});
   }catch(e){ss({postLoading:false,postError:'Error: '+e.message});}
 }
